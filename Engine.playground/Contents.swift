@@ -14,8 +14,26 @@ view.clearColor = MTLClearColor(red: 1, green: 1, blue: 0.8, alpha: 1)
 //模型IO
 //管理模型数据
 let allocator = MTKMeshBufferAllocator(device: device)
-//创建一个sphere
-let mdlMesh = MDLMesh(sphereWithExtent: [0.75, 0.75, 0.75], segments: [100, 100], inwardNormals: false, geometryType: .triangles, allocator: allocator)
+
+let mdlMesh = MDLMesh(coneWithExtent: [1, 1, 1], segments: [10, 10], inwardNormals: false, cap: true, geometryType: .triangles, allocator: allocator)
+
+//导出模型数据
+let asset = MDLAsset()
+asset.add(mdlMesh)
+
+//加载模型
+let fileExtension = "obj"
+guard MDLAsset.canExportFileExtension(fileExtension) else{
+    fatalError("Can't export a .\(fileExtension) format")
+}
+do{
+    let url = playgroundSharedDataDirectory.appendingPathComponent("Sphere.\(fileExtension)")
+    try asset.export(to: url)
+} catch{
+    fatalError("Error \(error.localizedDescription)")
+}
+
+
 //将输入（这里是创建的）mesh转化为MetalKit mesh
 let mesh = try MTKMesh(mesh: mdlMesh, device: device)
 
@@ -70,6 +88,9 @@ renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
 guard let submesh = mesh.submeshes.first else{
     fatalError()
 }
+
+//设置三角形绘制模式
+renderEncoder.setTriangleFillMode(.lines)
 
 //draw call
 renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: submesh.indexCount, indexType: submesh.indexType, indexBuffer: submesh.indexBuffer.buffer, indexBufferOffset: 0)
