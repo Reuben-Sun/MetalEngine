@@ -31,7 +31,7 @@ vertexDescriptor.attributes[0].format = .float3
 vertexDescriptor.attributes[0].offset = 0
 vertexDescriptor.attributes[0].bufferIndex = 0
 //设置buffer0用多少byte
-vertexDescriptor.layouts[0].stride = MemoryLayout<float3>.stride
+vertexDescriptor.layouts[0].stride = MemoryLayout<SIMD3<Float>>.stride
 let meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
 //将这段数据的名字设为position
 (meshDescriptor.attributes[0] as! MDLVertexAttribute).name = MDLVertexAttributePosition
