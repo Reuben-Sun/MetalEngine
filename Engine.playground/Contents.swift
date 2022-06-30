@@ -90,16 +90,21 @@ else{fatalError()}
 renderEncoder.setRenderPipelineState(pipelineState)
 renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)    //这里的sphere只有一个submesh
 
-//submesh
-guard let submesh = mesh.submeshes.first else{
-    fatalError()
-}
+
 
 //设置三角形绘制模式
 renderEncoder.setTriangleFillMode(.lines)
 
-//draw call
-renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: submesh.indexCount, indexType: submesh.indexType, indexBuffer: submesh.indexBuffer.buffer, indexBufferOffset: 0)
+//submesh
+for submesh in mesh.submeshes {
+    //draw call
+    renderEncoder.drawIndexedPrimitives(type: .triangle,
+                                        indexCount: submesh.indexCount,
+                                        indexType: submesh.indexType,
+                                        indexBuffer: submesh.indexBuffer.buffer,
+                                        indexBufferOffset: submesh.indexBuffer.offset)
+
+}
 
 //提交渲染命令
 renderEncoder.endEncoding()
