@@ -38,14 +38,14 @@ vertex float4 vertex_main(const VSInput v[[stage_in]]){
 }
 
 fragment float4 fragment_main(){
-    return float4(0,1,0,1);
+    return float4(1,0,0,1);
 }
 """
 
 //创建shader library
 let library = try device.makeLibrary(source: shader, options: nil)
 let vertexFunc = library.makeFunction(name: "vertex_main")
-let fragmentFunc = library.makeFunction(name: "fragmnet_main")
+let fragmentFunc = library.makeFunction(name: "fragment_main")
 
 //创建pipeline state descriptor
 let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
