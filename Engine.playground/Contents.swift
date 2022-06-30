@@ -1,5 +1,6 @@
 import PlaygroundSupport
 import MetalKit
+import simd
 
 //获取默认设备（guard类似于if not，如果device是空，则执行）
 guard let device = MTLCreateSystemDefaultDevice() else{
@@ -15,24 +16,29 @@ view.clearColor = MTLClearColor(red: 1, green: 1, blue: 0.8, alpha: 1)
 //管理模型数据
 let allocator = MTKMeshBufferAllocator(device: device)
 
-let mdlMesh = MDLMesh(coneWithExtent: [1, 1, 1], segments: [10, 10], inwardNormals: false, cap: true, geometryType: .triangles, allocator: allocator)
-
-//导出模型数据
-let asset = MDLAsset()
-asset.add(mdlMesh)
-
 //加载模型
 let fileExtension = "obj"
 guard MDLAsset.canExportFileExtension(fileExtension) else{
     fatalError("Can't export a .\(fileExtension) format")
 }
-do{
-    let url = playgroundSharedDataDirectory.appendingPathComponent("Sphere.\(fileExtension)")
-    try asset.export(to: url)
-} catch{
-    fatalError("Error \(error.localizedDescription)")
+guard let assetUrl = Bundle.main.url(forResource: "Sphere", withExtension: "obj") else{
+    fatalError()
 }
 
+//顶点数据描述
+let vertexDescriptor = MTLVertexDescriptor()
+vertexDescriptor.attributes[0].format = .float3
+vertexDescriptor.attributes[0].offset = 0
+vertexDescriptor.attributes[0].bufferIndex = 0
+//设置buffer0用多少byte
+vertexDescriptor.layouts[0].stride = MemoryLayout<float3>.stride
+let meshDescriptor = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor)
+//将这段数据的名字设为position
+(meshDescriptor.attributes[0] as! MDLVertexAttribute).name = MDLVertexAttributePosition
+
+//mdlMesh
+let asset = MDLAsset(url: assetUrl, vertexDescriptor: meshDescriptor, bufferAllocator: allocator)
+let mdlMesh = asset.object(at: 0) as! MDLMesh
 
 //将输入（这里是创建的）mesh转化为MetalKit mesh
 let mesh = try MTKMesh(mesh: mdlMesh, device: device)
